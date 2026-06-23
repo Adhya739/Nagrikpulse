@@ -1,0 +1,1164 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>NagrikPulse</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --teal:       #db2777;
+      --teal-dark:  #831843;
+      --teal-pale:  #fce7f3;
+      --ink:        #1f0a13;
+      --muted:      #9d6b82;
+      --soft:       #fdf2f8;
+      --line:       #f9a8d4;
+      --danger:     #be123c;
+      --warn:       #d97706;
+      --ok:         #15803d;
+      --info:       #7c3aed;
+      --white:      #ffffff;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      background: #fff5f9;
+      color: var(--ink);
+      line-height: 1.6;
+    }
+
+    .hidden { display: none !important; }
+
+    .wrap {
+      width: min(1240px, 94%);
+      margin: 0 auto;
+    }
+
+    /* ── TOP BAR ── */
+    .topbar {
+      background: linear-gradient(135deg, #831843, #9d174d);
+      position: sticky;
+      top: 0;
+      z-index: 30;
+      border-bottom: 1px solid rgba(255,255,255,0.08);
+    }
+
+    .topbar-inner {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      flex-wrap: wrap;
+      padding: 14px 0;
+    }
+
+    .brand-name {
+      font-family: 'Sora', sans-serif;
+      font-size: 1.45rem;
+      font-weight: 700;
+      color: #fff;
+      letter-spacing: -0.5px;
+    }
+
+    .brand-sub {
+      font-size: 0.82rem;
+      color: rgba(255,255,255,0.6);
+      margin-top: 2px;
+    }
+
+    .nav-tabs {
+      display: flex;
+      gap: 6px;
+      flex-wrap: wrap;
+    }
+
+    .nav-btn {
+      border: none;
+      background: transparent;
+      color: rgba(255,255,255,0.65);
+      padding: 8px 14px;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 0.88rem;
+      font-family: 'Inter', sans-serif;
+      font-weight: 500;
+      transition: background 0.18s, color 0.18s;
+    }
+
+    .nav-btn:hover { background: rgba(255,255,255,0.1); color: #fff; }
+    .nav-btn.active { background: rgba(255,255,255,0.18); color: #fff; font-weight: 600; }
+
+    /* ── LAYOUT ── */
+    .page { padding: 28px 0 52px; }
+
+    .two-col {
+      display: grid;
+      grid-template-columns: 1fr 1.6fr;
+      gap: 28px;
+      align-items: start;
+    }
+
+    .split {
+      display: grid;
+      grid-template-columns: 1.2fr 1fr;
+      gap: 24px;
+      align-items: start;
+    }
+
+    /* ── AUTH ── */
+    .auth-panel {
+      background: var(--white);
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      padding: 28px 26px;
+    }
+
+    .auth-panel h2 {
+      font-family: 'Sora', sans-serif;
+      font-size: 1.15rem;
+      margin-bottom: 6px;
+    }
+
+    .auth-panel .note {
+      font-size: 0.88rem;
+      color: var(--muted);
+      margin-bottom: 20px;
+      line-height: 1.55;
+    }
+
+    .field { margin-bottom: 14px; }
+    .field label {
+      display: block;
+      font-size: 0.84rem;
+      font-weight: 600;
+      color: #374151;
+      margin-bottom: 6px;
+    }
+
+    .field input,
+    .field select,
+    .field textarea {
+      width: 100%;
+      padding: 10px 13px;
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      font-size: 0.92rem;
+      font-family: 'Inter', sans-serif;
+      color: var(--ink);
+      background: #fafbfc;
+      transition: border-color 0.15s, box-shadow 0.15s;
+    }
+
+    .field input:focus,
+    .field select:focus,
+    .field textarea:focus {
+      outline: none;
+      border-color: var(--teal);
+      box-shadow: 0 0 0 3px rgba(219,39,119,0.12);
+    }
+
+    .field textarea { min-height: 110px; resize: vertical; }
+
+    .btn-row { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 18px; }
+
+    .btn {
+      padding: 10px 18px;
+      border-radius: 10px;
+      border: none;
+      font-family: 'Inter', sans-serif;
+      font-size: 0.9rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: opacity 0.15s, transform 0.1s;
+    }
+    .btn:active { transform: scale(0.97); }
+
+    .btn-primary   { background: var(--teal); color: #fff; }
+    .btn-primary:hover { background: var(--teal-dark); }
+    .btn-success   { background: var(--ok); color: #fff; }
+    .btn-danger    { background: var(--danger); color: #fff; }
+    .btn-warning   { background: var(--warn); color: #fff; }
+    .btn-info      { background: var(--info); color: #fff; }
+    .btn-ghost     { background: var(--teal-pale); color: var(--teal-dark); }
+    .btn-soft      { background: var(--soft); color: var(--ink); }
+
+    .status-msg {
+      margin-top: 12px;
+      font-size: 0.88rem;
+      font-weight: 600;
+      color: #9d174d;
+      min-height: 20px;
+    }
+
+    /* ── GUIDE PANEL ── */
+    .guide-panel {
+      background: #fce7f3;
+      border-radius: 18px;
+      padding: 26px 24px;
+    }
+
+    .guide-panel h2 {
+      font-family: 'Sora', sans-serif;
+      font-size: 1.1rem;
+      margin-bottom: 10px;
+    }
+
+    .guide-panel .intro {
+      font-size: 0.88rem;
+      color: #374151;
+      margin-bottom: 18px;
+      line-height: 1.6;
+    }
+
+    .guide-steps { list-style: none; display: grid; gap: 14px; }
+
+    .guide-steps li {
+      display: flex;
+      gap: 13px;
+      align-items: flex-start;
+    }
+
+    .step-num {
+      flex-shrink: 0;
+      width: 26px;
+      height: 26px;
+      border-radius: 50%;
+      background: #db2777;
+      color: #fff;
+      font-size: 0.78rem;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-top: 1px;
+    }
+
+    .step-text strong {
+      display: block;
+      font-size: 0.9rem;
+      color: var(--ink);
+    }
+
+    .step-text span {
+      font-size: 0.83rem;
+      color: var(--muted);
+      line-height: 1.5;
+    }
+
+    .aqi-strip {
+      margin-top: 20px;
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      padding: 10px 14px;
+      border-radius: 10px;
+      background: #fff7ed;
+      border: 1px solid #fed7aa;
+    }
+
+    .aqi-num {
+      font-family: 'Sora', sans-serif;
+      font-size: 1.4rem;
+      font-weight: 700;
+      color: #9a3412;
+    }
+
+    .aqi-label {
+      font-size: 0.8rem;
+      color: #c2410c;
+      font-weight: 600;
+    }
+
+    /* ── PORTAL ── */
+    .portal-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 12px;
+      margin-bottom: 22px;
+    }
+
+    .portal-header h2 {
+      font-family: 'Sora', sans-serif;
+      font-size: 1.2rem;
+    }
+
+    .portal-header p {
+      font-size: 0.86rem;
+      color: var(--muted);
+      margin-top: 2px;
+    }
+
+    /* ── FILTER PILLS ── */
+    .filter-bar { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 18px; }
+
+    .pill {
+      padding: 6px 14px;
+      border-radius: 999px;
+      border: 1px solid var(--line);
+      background: #fff;
+      font-size: 0.83rem;
+      font-weight: 600;
+      cursor: pointer;
+      color: #374151;
+      transition: background 0.15s, color 0.15s, border-color 0.15s;
+      user-select: none;
+    }
+
+    .pill:hover { border-color: var(--teal); color: var(--teal); }
+    .pill.active { background: var(--teal); color: #fff; border-color: var(--teal); }
+
+    /* ── REPORT LIST ── */
+    .report-list { display: grid; gap: 10px; }
+
+    .report-card {
+      padding: 14px 16px;
+      border-radius: 14px;
+      border-left: 3px solid transparent;
+      background: var(--white);
+      border: 1px solid var(--line);
+      border-left: 3px solid transparent;
+      cursor: pointer;
+      transition: border-color 0.15s, background 0.15s;
+    }
+
+    .report-card:hover { border-left-color: var(--teal); background: #fafcfb; }
+    .report-card.active { border-left-color: var(--teal); background: var(--teal-pale); }
+
+    .report-card h4 {
+      font-size: 0.95rem;
+      margin-bottom: 4px;
+    }
+
+    .report-card p {
+      font-size: 0.83rem;
+      color: var(--muted);
+      line-height: 1.5;
+      margin-bottom: 8px;
+    }
+
+    .badge {
+      display: inline-block;
+      padding: 3px 10px;
+      border-radius: 999px;
+      font-size: 0.75rem;
+      font-weight: 700;
+      letter-spacing: 0.3px;
+    }
+
+    .badge.verified  { background: #dcfce7; color: #166534; }
+    .badge.progress  { background: #fef3c7; color: #92400e; }
+    .badge.submitted { background: #dbeafe; color: #1e40af; }
+    .badge.critical  { background: #fee2e2; color: #991b1b; }
+
+    /* ── MAP ── */
+    .map-area {
+      margin-top: 18px;
+      border-radius: 14px;
+      background:
+        linear-gradient(180deg, rgba(219,39,119,0.04), rgba(251,207,232,0.07)),
+        #fdf2f8;
+      border: 1px dashed #f9a8d4;
+      min-height: 220px;
+      position: relative;
+      overflow: hidden;
+      padding: 14px;
+    }
+
+    .map-grid-bg {
+      position: absolute;
+      inset: 0;
+      background-image:
+        linear-gradient(to right, rgba(148,163,184,0.1) 1px, transparent 1px),
+        linear-gradient(to bottom, rgba(148,163,184,0.1) 1px, transparent 1px);
+      background-size: 30px 30px;
+    }
+
+    .map-label {
+      position: relative;
+      z-index: 1;
+      font-size: 0.82rem;
+      color: var(--muted);
+    }
+
+    .map-label strong { display: block; color: var(--ink); margin-bottom: 3px; }
+
+    .pin {
+      position: absolute;
+      width: 14px;
+      height: 14px;
+      border-radius: 50%;
+      background: var(--danger);
+      border: 2px solid #fff;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+      cursor: pointer;
+    }
+
+    /* ── DETAIL PANEL ── */
+    .detail-panel {
+      background: var(--white);
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      padding: 22px 20px;
+      position: sticky;
+      top: 76px;
+    }
+
+    .detail-panel h3 {
+      font-family: 'Sora', sans-serif;
+      font-size: 1.05rem;
+      margin-bottom: 8px;
+    }
+
+    .detail-panel p {
+      font-size: 0.88rem;
+      color: var(--muted);
+      line-height: 1.6;
+      margin-bottom: 12px;
+    }
+
+    .detail-actions { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 16px; }
+
+    .xp-note {
+      margin-top: 14px;
+      font-size: 0.82rem;
+      color: #9d174d;
+      font-weight: 600;
+    }
+
+    /* ── ANALYTICS ── */
+    .analytics-intro {
+      margin-bottom: 24px;
+    }
+
+    .analytics-intro h2 {
+      font-family: 'Sora', sans-serif;
+      font-size: 1.2rem;
+      margin-bottom: 4px;
+    }
+
+    .analytics-intro p { font-size: 0.88rem; color: var(--muted); }
+
+    .stats-row {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 16px;
+      margin-bottom: 28px;
+    }
+
+    .stat-tile {
+      background: var(--white);
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      padding: 18px;
+    }
+
+    .stat-tile .s-label {
+      font-size: 0.8rem;
+      color: var(--muted);
+      font-weight: 600;
+      margin-bottom: 6px;
+      text-transform: uppercase;
+      letter-spacing: 0.4px;
+    }
+
+    .stat-tile .s-val {
+      font-family: 'Sora', sans-serif;
+      font-size: 1.7rem;
+      font-weight: 700;
+      color: #831843;
+    }
+
+    .section-label {
+      font-size: 0.95rem;
+      font-weight: 700;
+      color: var(--ink);
+      margin-bottom: 12px;
+    }
+
+    /* bar chart */
+    .bar-chart { display: grid; gap: 8px; margin-bottom: 28px; }
+
+    .bar-row {
+      display: grid;
+      grid-template-columns: 90px 1fr 36px;
+      align-items: center;
+      gap: 10px;
+      font-size: 0.83rem;
+    }
+
+    .bar-row .dept { color: #374151; }
+
+    .bar-track {
+      background: var(--soft);
+      border-radius: 999px;
+      height: 10px;
+      overflow: hidden;
+    }
+
+    .bar-fill {
+      height: 100%;
+      border-radius: 999px;
+      background: linear-gradient(90deg, #db2777, #f472b6);
+    }
+
+    .bar-row .val { font-weight: 700; color: var(--teal-dark); text-align: right; }
+
+    /* trend line */
+    .trend-chart { display: flex; align-items: flex-end; gap: 10px; height: 80px; margin-bottom: 28px; }
+
+    .trend-col { display: flex; flex-direction: column; align-items: center; gap: 4px; flex: 1; }
+
+    .trend-bar {
+      width: 100%;
+      border-radius: 6px 6px 0 0;
+      background: linear-gradient(180deg, #db2777, #be185d);
+      opacity: 0.85;
+    }
+
+    .trend-col .m-label { font-size: 0.75rem; color: var(--muted); }
+
+    /* ── AUTHORITY TABLE ── */
+    .authority-intro {
+      margin-bottom: 20px;
+    }
+
+    .authority-intro h2 {
+      font-family: 'Sora', sans-serif;
+      font-size: 1.2rem;
+      margin-bottom: 4px;
+    }
+
+    .authority-intro p { font-size: 0.88rem; color: var(--muted); }
+
+    .case-list { display: grid; gap: 10px; }
+
+    .case-row {
+      background: var(--white);
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      padding: 16px 18px;
+      display: grid;
+      grid-template-columns: 1fr 1fr auto;
+      gap: 16px;
+      align-items: center;
+    }
+
+    .case-row .c-name {
+      font-weight: 700;
+      font-size: 0.95rem;
+      margin-bottom: 3px;
+    }
+
+    .case-row .c-meta {
+      font-size: 0.8rem;
+      color: var(--muted);
+      line-height: 1.5;
+    }
+
+    .case-row .c-ngo {
+      font-size: 0.82rem;
+      color: #374151;
+      line-height: 1.5;
+    }
+
+    .status-pill {
+      display: inline-block;
+      padding: 5px 13px;
+      border-radius: 999px;
+      font-size: 0.78rem;
+      font-weight: 700;
+      white-space: nowrap;
+    }
+
+    .status-pill.resolve   { background: #dcfce7; color: #166534; }
+    .status-pill.progress  { background: #fef3c7; color: #92400e; }
+    .status-pill.verified  { background: #dbeafe; color: #1e40af; }
+
+    /* ── GRIEVANCE FORM ── */
+    .grievance-intro {
+      margin-bottom: 22px;
+    }
+
+    .grievance-intro h2 {
+      font-family: 'Sora', sans-serif;
+      font-size: 1.2rem;
+      margin-bottom: 4px;
+    }
+
+    .grievance-intro p { font-size: 0.88rem; color: var(--muted); }
+
+    .toggle-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 20px;
+      font-size: 0.88rem;
+      font-weight: 600;
+      color: #374151;
+    }
+
+    .switch {
+      position: relative;
+      width: 46px;
+      height: 25px;
+      background: #cbd5e1;
+      border-radius: 999px;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+
+    .switch::after {
+      content: "";
+      position: absolute;
+      top: 3px;
+      left: 3px;
+      width: 19px;
+      height: 19px;
+      background: white;
+      border-radius: 50%;
+      transition: left 0.2s;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.2);
+    }
+
+    .switch.active { background: var(--ok); }
+    .switch.active::after { left: 24px; }
+
+    .form-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 16px;
+    }
+
+    .field.full { grid-column: 1 / -1; }
+
+    .upload-area {
+      padding: 20px;
+      border: 2px dashed #fbcfe8;
+      border-radius: 12px;
+      text-align: center;
+      color: var(--muted);
+      background: #fff5f9;
+      font-size: 0.85rem;
+    }
+
+    .upload-area input { margin-top: 10px; }
+
+    .form-actions {
+      grid-column: 1 / -1;
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin-top: 6px;
+    }
+
+    .form-status {
+      margin-top: 12px;
+      font-size: 0.88rem;
+      font-weight: 600;
+      color: #9d174d;
+    }
+
+    @media (max-width: 1024px) {
+      .two-col, .split, .stats-row, .form-grid { grid-template-columns: 1fr; }
+    }
+
+    @media (max-width: 640px) {
+      .topbar-inner { align-items: flex-start; }
+      .nav-tabs { width: 100%; }
+      .nav-btn { flex: 1 1 auto; text-align: center; }
+      .case-row { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+<header class="topbar">
+  <div class="wrap topbar-inner">
+    <div>
+      <div class="brand-name">NagrikPulse</div>
+      <div class="brand-sub">Ministry of Housing &amp; Urban Affairs</div>
+    </div>
+    <nav class="nav-tabs">
+      <button class="nav-btn active" data-page="citizenPage">Citizen Portal</button>
+      <button class="nav-btn" data-page="analyticsPage">Swachh Analytics</button>
+      <button class="nav-btn" data-page="authorityPage">Authority Panel</button>
+      <button class="nav-btn" data-page="grievancePage">Register Grievance</button>
+    </nav>
+  </div>
+</header>
+
+<main class="wrap page">
+
+  <!-- AUTH -->
+  <section id="authSection" class="two-col">
+
+    <div class="auth-panel">
+      <h2>Verify your identity</h2>
+      <p class="note">Enter your Aadhaar or mobile number to get started. An OTP will be sent to your registered number.</p>
+
+      <div class="field">
+        <label for="aadhaarInput">Aadhaar / Mobile number</label>
+        <input id="aadhaarInput" type="text" placeholder="XXXX XXXX XXXX or 10-digit mobile" />
+      </div>
+
+      <div class="field">
+        <label for="otpInput">One-time password (OTP)</label>
+        <input id="otpInput" type="text" placeholder="6-digit OTP" />
+      </div>
+
+      <div class="btn-row">
+        <button class="btn btn-ghost" id="generateOtpBtn">Send OTP</button>
+        <button class="btn btn-primary" id="verifyOtpBtn">Verify &amp; Continue</button>
+      </div>
+
+      <div id="otpStatus" class="status-msg"></div>
+    </div>
+
+    <div class="guide-panel">
+      <h2>How this works</h2>
+      <p class="intro">NagrikPulse connects citizens with local authorities. Here's what you can do once you're in.</p>
+      <ol class="guide-steps">
+        <li>
+          <div class="step-num">1</div>
+          <div class="step-text">
+            <strong>AI Auto-Triage</strong>
+            <span>Upload a photo of an issue — the system suggests the category and urgency automatically.</span>
+          </div>
+        </li>
+        <li>
+          <div class="step-num">2</div>
+          <div class="step-text">
+            <strong>Crowd Verification &amp; XP</strong>
+            <span>Select any report and click Citizen Verification to confirm it. Earn +25 XP each time.</span>
+          </div>
+        </li>
+        <li>
+          <div class="step-num">3</div>
+          <div class="step-text">
+            <strong>Route Optimisation</strong>
+            <span>Municipal dispatchers use the platform to plan and optimise field repair routes.</span>
+          </div>
+        </li>
+      </ol>
+
+      <div class="aqi-strip">
+        <div class="aqi-num">142</div>
+        <div>
+          <div class="aqi-label">AQI · Delhi NCR</div>
+          <div style="font-size:0.75rem;color:#9a3412;">Unhealthy for sensitive groups</div>
+        </div>
+      </div>
+    </div>
+
+  </section>
+
+  <!-- PORTAL -->
+  <section id="portalSection" class="hidden">
+
+    <!-- CITIZEN PAGE -->
+    <div id="citizenPage" class="page-panel">
+      <div class="portal-header">
+        <div>
+          <h2>Community Reports</h2>
+          <p>Crowdsourced grievances in real time — click a report to see details and take action.</p>
+        </div>
+        <button class="btn btn-danger" id="quickReportBtn">Report a problem</button>
+      </div>
+
+      <div class="filter-bar">
+        <span class="pill active" data-filter="All">All</span>
+        <span class="pill" data-filter="Critical">Critical</span>
+        <span class="pill" data-filter="Submitted">Submitted</span>
+        <span class="pill" data-filter="Verified">Verified</span>
+        <span class="pill" data-filter="In Progress">In Progress</span>
+      </div>
+
+      <div class="split">
+        <div>
+          <div id="reportList" class="report-list"></div>
+
+          <div class="map-area">
+            <div class="map-grid-bg"></div>
+            <div class="map-label">
+              <strong>Spatial overview</strong>
+              Click a pin to jump to that report.
+            </div>
+            <div class="pin" style="top:68px;left:78px;"  data-id="1"></div>
+            <div class="pin" style="top:128px;left:218px;" data-id="2"></div>
+            <div class="pin" style="top:168px;left:416px;" data-id="3"></div>
+            <div class="pin" style="top:88px;left:514px;"  data-id="4"></div>
+          </div>
+        </div>
+
+        <div class="detail-panel" id="reportDetailCard">
+          <h3 id="detailTitle">Select a report</h3>
+          <p id="detailDesc">Report details will appear here once you choose one from the list or map.</p>
+          <div id="detailStatus"></div>
+
+          <div class="detail-actions">
+            <button class="btn btn-soft" id="aiLegalBtn">AI Legal Advocate</button>
+            <button class="btn btn-primary" id="citizenVerifyBtn">Verify this report</button>
+            <button class="btn btn-success" id="crowdfundBtn">Pledge ₹500 via UPI</button>
+          </div>
+
+          <div class="xp-note" id="xpNote">Your Citizen XP: 0</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ANALYTICS PAGE -->
+    <div id="analyticsPage" class="page-panel hidden">
+      <div class="analytics-intro">
+        <h2>Swachh Analytics</h2>
+        <p>Live telemetry and resolution performance across departments.</p>
+      </div>
+
+      <div class="stats-row">
+        <div class="stat-tile">
+          <div class="s-label">State Average Score</div>
+          <div class="s-val">92.4</div>
+          <div style="font-size:0.78rem;color:var(--muted);margin-top:2px;">out of 100</div>
+        </div>
+        <div class="stat-tile">
+          <div class="s-label">Citizen Satisfaction</div>
+          <div class="s-val">87.8%</div>
+        </div>
+        <div class="stat-tile">
+          <div class="s-label">Direct Resolution Rate</div>
+          <div class="s-val">94.1%</div>
+        </div>
+      </div>
+
+      <div class="section-label">Problems by department</div>
+      <div class="bar-chart">
+        <div class="bar-row"><span class="dept">Sanitation</span><div class="bar-track"><div class="bar-fill" style="width:85%"></div></div><span class="val">85</span></div>
+        <div class="bar-row"><span class="dept">Sewage</span>   <div class="bar-track"><div class="bar-fill" style="width:80%"></div></div><span class="val">80</span></div>
+        <div class="bar-row"><span class="dept">Roads</span>    <div class="bar-track"><div class="bar-fill" style="width:70%"></div></div><span class="val">70</span></div>
+        <div class="bar-row"><span class="dept">Power</span>    <div class="bar-track"><div class="bar-fill" style="width:50%"></div></div><span class="val">50</span></div>
+        <div class="bar-row"><span class="dept">Water</span>    <div class="bar-track"><div class="bar-fill" style="width:40%"></div></div><span class="val">40</span></div>
+      </div>
+
+      <div class="section-label">Resolution time — last 5 months</div>
+      <div class="trend-chart">
+        <div class="trend-col"><div class="trend-bar" style="height:36%"></div><span class="m-label">Feb</span></div>
+        <div class="trend-col"><div class="trend-bar" style="height:60%"></div><span class="m-label">Mar</span></div>
+        <div class="trend-col"><div class="trend-bar" style="height:96%"></div><span class="m-label">Apr</span></div>
+        <div class="trend-col"><div class="trend-bar" style="height:78%"></div><span class="m-label">May</span></div>
+        <div class="trend-col"><div class="trend-bar" style="height:50%"></div><span class="m-label">Jun</span></div>
+      </div>
+    </div>
+
+    <!-- AUTHORITY PAGE -->
+    <div id="authorityPage" class="page-panel hidden">
+      <div class="authority-intro">
+        <h2>Authority Panel</h2>
+        <p>Active cases, assigned officers, and interested NGOs.</p>
+      </div>
+
+      <div class="case-list">
+        <div class="case-row">
+          <div>
+            <div class="c-name">Ravi Verma</div>
+            <div class="c-meta">Mumbai · IP 1112.22.09 · Active</div>
+          </div>
+          <div class="c-ngo">
+            Save Earth Committee · Mumbai<br />
+            <a href="mailto:SEC@gmail.com" style="color:#db2777;font-size:0.8rem;">SEC@gmail.com</a>
+          </div>
+          <span class="status-pill resolve">Resolve</span>
+        </div>
+
+        <div class="case-row">
+          <div>
+            <div class="c-name">Sakuntla Devi</div>
+            <div class="c-meta">Raigarh · IP 1112.22.8969 · Active</div>
+          </div>
+          <div class="c-ngo">
+            Committee No.1 · Delhi<br />
+            <a href="mailto:SEC@gmail.com" style="color:#db2777;font-size:0.8rem;">SEC@gmail.com</a>
+          </div>
+          <span class="status-pill progress">In Progress</span>
+        </div>
+
+        <div class="case-row">
+          <div>
+            <div class="c-name">Aman Kumar</div>
+            <div class="c-meta">Haryana · IP 1112.2278.09 · Active</div>
+          </div>
+          <div class="c-ngo">
+            Save Earth Committee · Mumbai<br />
+            <a href="mailto:SEC@gmail.com" style="color:#db2777;font-size:0.8rem;">SEC@gmail.com</a>
+          </div>
+          <span class="status-pill verified">Verified</span>
+        </div>
+
+        <div class="case-row">
+          <div>
+            <div class="c-name">Raj Verma</div>
+            <div class="c-meta">Chhattisgarh · IP 1112.22.0 · Active</div>
+          </div>
+          <div class="c-ngo">
+            Save Earth Committee · Mumbai<br />
+            <a href="mailto:SEC@gmail.com" style="color:#db2777;font-size:0.8rem;">SEC@gmail.com</a>
+          </div>
+          <span class="status-pill resolve">Resolve</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- GRIEVANCE PAGE -->
+    <div id="grievancePage" class="page-panel hidden">
+      <div class="grievance-intro">
+        <h2>Register a grievance</h2>
+        <p>You can file anonymously or as a verified citizen — toggle the switch below.</p>
+      </div>
+
+      <div class="toggle-row">
+        <div id="citizenSwitch" class="switch active"></div>
+        <span id="toggleLabel">Filing as Verified Citizen</span>
+      </div>
+
+      <form id="grievanceForm" class="form-grid">
+
+        <div class="field">
+          <label for="department">Department / विभाग</label>
+          <select id="department" required>
+            <option value="">Choose a department</option>
+            <option>Road &amp; Highway</option>
+            <option>Water</option>
+            <option>Sewage</option>
+            <option>Power</option>
+            <option>Sanitation</option>
+          </select>
+        </div>
+
+        <div class="field">
+          <label for="severity">Severity / गंभीरता</label>
+          <select id="severity" required>
+            <option value="">How urgent is this?</option>
+            <option>Low Priority</option>
+            <option>Medium Priority</option>
+            <option>High Priority</option>
+            <option>Critical</option>
+          </select>
+        </div>
+
+        <div class="field full">
+          <label for="complaintTitle">Complaint title</label>
+          <input id="complaintTitle" type="text" placeholder="e.g. Large pothole on MG Road blocking traffic" required />
+        </div>
+
+        <div class="field full">
+          <label for="descriptionBox">What's happening?</label>
+          <textarea id="descriptionBox" placeholder="Describe the issue — what you saw, when it started, how it's affecting people." required></textarea>
+        </div>
+
+        <div class="field full">
+          <label for="locationSection">Location</label>
+          <input id="locationSection" type="text" placeholder="Street, landmark, or area name" required />
+        </div>
+
+        <div class="field full">
+          <label>Add a photo or video (optional)</label>
+          <div class="upload-area">
+            Drag &amp; drop here, or browse below<br />
+            <small>Supports JPG, PNG, MP4</small>
+            <div><input id="fileUpload" type="file" accept=".jpg,.jpeg,.png,.mp4" /></div>
+          </div>
+        </div>
+
+        <div class="form-actions">
+          <button type="button" class="btn btn-soft" id="cancelFormBtn">Clear form</button>
+          <button type="submit" class="btn btn-primary">Submit grievance</button>
+        </div>
+
+      </form>
+
+      <div id="formMessage" class="form-status"></div>
+    </div>
+
+  </section>
+
+</main>
+
+<script>
+  const reports = [
+    { id: 1, title: "Main Street Pothole", description: "Large 2ft deep pothole blocking the lane near the intersection. Cars swerve dangerously to avoid it.", status: "Verified", severity: "Critical" },
+    { id: 2, title: "Streetlight Outage", description: "Streetlights are non-functional near the crossing — the road is unsafe at night.", status: "In Progress", severity: "High" },
+    { id: 3, title: "Water Leakage", description: "Pipeline leaking continuously, flooding the roadside and wasting water for several hours.", status: "Submitted", severity: "Medium" },
+    { id: 4, title: "Repeated Road Damage", description: "Same road patch keeps breaking — causing congestion and minor accidents almost daily.", status: "Verified", severity: "Critical" }
+  ];
+
+  let selectedReportId = null;
+  let generatedOtp = null;
+  let citizenXp = 0;
+  let activeFilter = "All";
+
+  const authSection    = document.getElementById("authSection");
+  const portalSection  = document.getElementById("portalSection");
+  const otpStatus      = document.getElementById("otpStatus");
+  const aadhaarInput   = document.getElementById("aadhaarInput");
+  const otpInput       = document.getElementById("otpInput");
+  const reportList     = document.getElementById("reportList");
+  const detailTitle    = document.getElementById("detailTitle");
+  const detailDesc     = document.getElementById("detailDesc");
+  const detailStatus   = document.getElementById("detailStatus");
+  const xpNote         = document.getElementById("xpNote");
+  const filterPills    = document.querySelectorAll(".pill");
+  const pageButtons    = document.querySelectorAll(".nav-btn");
+  const pages          = document.querySelectorAll(".page-panel");
+
+  function getBadgeClass(status) {
+    if (status === "Verified")   return "verified";
+    if (status === "In Progress") return "progress";
+    if (status === "Submitted")  return "submitted";
+    return "critical";
+  }
+
+  function renderReports() {
+    reportList.innerHTML = "";
+    const filtered = reports.filter(r => {
+      if (activeFilter === "All")      return true;
+      if (activeFilter === "Critical") return r.severity === "Critical";
+      return r.status === activeFilter;
+    });
+
+    if (!filtered.length) {
+      reportList.innerHTML = '<p style="color:var(--muted);font-size:0.88rem;padding:12px 0;">No reports match this filter.</p>';
+      return;
+    }
+
+    filtered.forEach(report => {
+      const card = document.createElement("div");
+      card.className = "report-card" + (selectedReportId === report.id ? " active" : "");
+      card.innerHTML = `
+        <h4>${report.title}</h4>
+        <p>${report.description}</p>
+        <span class="badge ${getBadgeClass(report.status)}">${report.status}</span>
+      `;
+      card.addEventListener("click", () => selectReport(report.id));
+      reportList.appendChild(card);
+    });
+  }
+
+  function selectReport(id) {
+    selectedReportId = id;
+    const report = reports.find(r => r.id === id);
+    if (!report) return;
+    detailTitle.textContent = report.title;
+    detailDesc.textContent  = report.description;
+    detailStatus.innerHTML  = `<span class="badge ${getBadgeClass(report.status)}">${report.status}</span>`;
+    renderReports();
+  }
+
+  document.getElementById("generateOtpBtn").addEventListener("click", () => {
+    if (!aadhaarInput.value.trim()) {
+      otpStatus.textContent = "Please enter your Aadhaar or mobile number first.";
+      return;
+    }
+    generatedOtp = String(Math.floor(100000 + Math.random() * 900000));
+    otpStatus.textContent = `OTP sent. For this demo, use: ${generatedOtp}`;
+  });
+
+  document.getElementById("verifyOtpBtn").addEventListener("click", () => {
+    if (!generatedOtp) { otpStatus.textContent = "Send an OTP first."; return; }
+    if (otpInput.value.trim() === generatedOtp) {
+      otpStatus.textContent = "Verified! Taking you in…";
+      setTimeout(() => {
+        authSection.classList.add("hidden");
+        portalSection.classList.remove("hidden");
+        selectReport(1);
+        renderReports();
+      }, 600);
+    } else {
+      otpStatus.textContent = "That OTP doesn't match — please try again.";
+    }
+  });
+
+  filterPills.forEach(pill => {
+    pill.addEventListener("click", () => {
+      filterPills.forEach(p => p.classList.remove("active"));
+      pill.classList.add("active");
+      activeFilter = pill.dataset.filter;
+      renderReports();
+    });
+  });
+
+  document.querySelectorAll(".pin").forEach(pin => {
+    pin.addEventListener("click", () => selectReport(Number(pin.dataset.id)));
+  });
+
+  document.getElementById("citizenVerifyBtn").addEventListener("click", () => {
+    if (!selectedReportId) { alert("Select a report first."); return; }
+    citizenXp += 25;
+    xpNote.textContent = `Your Citizen XP: ${citizenXp}`;
+    alert("Report verified. +25 XP added to your account.");
+  });
+
+  document.getElementById("crowdfundBtn").addEventListener("click", () => {
+    alert("Demo: ₹500 UPI pledge initiated for this NGO micro-fund project.");
+  });
+
+  document.getElementById("aiLegalBtn").addEventListener("click", () => {
+    if (!selectedReportId) { alert("Select a report first."); return; }
+    alert("AI Legal Advocate: This report appears valid and can be escalated to the responsible municipal authority.");
+  });
+
+  document.getElementById("quickReportBtn").addEventListener("click", () => switchPage("grievancePage"));
+
+  pageButtons.forEach(btn => btn.addEventListener("click", () => switchPage(btn.dataset.page)));
+
+  function switchPage(pageId) {
+    pages.forEach(p => p.classList.add("hidden"));
+    document.getElementById(pageId).classList.remove("hidden");
+    pageButtons.forEach(b => b.classList.remove("active"));
+    document.querySelector(`.nav-btn[data-page="${pageId}"]`).classList.add("active");
+  }
+
+  const citizenSwitch = document.getElementById("citizenSwitch");
+  const toggleLabel   = document.getElementById("toggleLabel");
+
+  citizenSwitch.addEventListener("click", () => {
+    citizenSwitch.classList.toggle("active");
+    toggleLabel.textContent = citizenSwitch.classList.contains("active")
+      ? "Filing as Verified Citizen"
+      : "Filing anonymously (Whistleblower)";
+  });
+
+  document.getElementById("grievanceForm").addEventListener("submit", e => {
+    e.preventDefault();
+    const title       = document.getElementById("complaintTitle").value.trim();
+    const description = document.getElementById("descriptionBox").value.trim();
+    const severity    = document.getElementById("severity").value;
+    const department  = document.getElementById("department").value;
+    const formMessage = document.getElementById("formMessage");
+
+    if (!title || !description || !severity || !department) {
+      formMessage.textContent = "Please fill in all required fields before submitting.";
+      return;
+    }
+
+    const severityLevel = severity === "Critical" ? "Critical" : severity === "High Priority" ? "High" : "Medium";
+    reports.unshift({ id: Date.now(), title, description, status: "Submitted", severity: severityLevel });
+
+    formMessage.textContent = "Grievance submitted — thank you for reporting.";
+    document.getElementById("grievanceForm").reset();
+    renderReports();
+    switchPage("citizenPage");
+  });
+
+  document.getElementById("cancelFormBtn").addEventListener("click", () => {
+    document.getElementById("grievanceForm").reset();
+    document.getElementById("formMessage").textContent = "Form cleared.";
+  });
+
+  renderReports();
+</script>
+</body>
+</html>
